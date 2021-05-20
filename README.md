@@ -1,5 +1,6 @@
 # docker-registry
-my docker registry
+my docker registry <BR>
+    Where Possible I build from alpine so they are small, lightweight and portable. <br>
 Images can be build manually or pulled with ```docker pull docker.pkg.github.com/mistressmeeple/docker-registry/*```
 
 ### Cron
