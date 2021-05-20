@@ -27,7 +27,6 @@ A_RECORD_NAME|Name of the A-Record to change in the DNS list|NULL
 A_RECORD_ID|ID of the A-Record to change in the DNS list |NULL
 
 A_RECORD_ID can be retrieved with the following command <BR>
-On liner: ```curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$A_RECORD_NAME" -H "Host: api.cloudflare.com" -H "User-Agent: ddclient/3.9.0" -H "Connection: close" -H "Authorization: Bearer $API_TOKEN"```
 ```
 curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$A_RECORD_NAME" \
     -H "Host: api.cloudflare.com" \
