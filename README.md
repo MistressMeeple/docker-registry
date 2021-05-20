@@ -13,6 +13,8 @@ SCRIPT_SCHEDULE|Defines the frequency that the cron job will run, this is passed
 ### Dynamic DNS
 -----
 Expanding on the cron, runs the included script every 5 mins to post ip changes to Cloud-Flare wesbite for DNS changes.
+Credit to [dcerisano/cloudflare-dynamic-dns](https://github.com/dcerisano/cloudflare-dynamic-dns), I just adapted this to suit my needs as a docker container. For instructions on how to set it up, go there too. 
+
 Env Arg | Description | Default
 --|--|--
 LOGGING_LEVEL | (Same as cron) | (Same as cron)
