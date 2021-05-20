@@ -1,5 +1,7 @@
 # docker-registry
 my docker registry
+Images can be build manually or pulled with ```docker pull docker.pkg.github.com/mistressmeeple/docker-registry/*```
+
 ### Cron
 -----
 Simple Docker container to fascilitate cron jobs, runs alpine
