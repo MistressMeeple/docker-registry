@@ -9,13 +9,12 @@ ENV A_RECORD_NAME=""
 ENV A_RECORD_ID=""
 
 ADD script.sh /
-
 RUN	touch /tmp/ip && \
     echo "#!/bin/sh" | tee /entry.sh && \
     echo "/usr/sbin/crond -f -l $LOGGING_LEVEL" | tee -a /entry.sh && \
     echo "$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log" | tee /crontab.txt && \
-    ln -sf /dev/stdout /var/log/script.log \ 
+    ln -sf /dev/stdout /var/log/script.log \
     chmod 755 /script.sh /entry.sh \
     /usr/bin/crontab /crontab.txt
-    
+
 CMD ["/entry.sh"]
