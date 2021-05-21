@@ -33,6 +33,8 @@ function env_var_check() {
 			echo "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
 		fi
 		exit 1;
+	else
+		echo "Environment variables seem to be setup correctly" 
 	fi
 }
 
@@ -62,9 +64,11 @@ function setup() {
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
 	ln -sf /dev/stdout /var/log/script.log 
+	echo "Setup complete"
 }
 
 function start() {
+	echo "Starting crond"
 	/usr/sbin/crond -f -l $LOGGING_LEVEL
 }
 
