@@ -24,7 +24,7 @@ function file_env() {
 }
 
 function env_var_check() {
-	if [ ! -z "$ZONE_ID" ] || [ ! -z "$API_TOEN" ] ||  ( [ ! -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ] ) ]; then
+	if [ ! -z "$ZONE_ID" ] || [ ! -z "$API_TOEN" ] ||  ( [ ! -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ] ); then
 		log "Environment variables are missing! Cannot start the container without these variables. " 
 		log "Ensure you have the following set correctly: "
 		if [ ! -z "$ZONE_ID" ]; then
@@ -33,7 +33,7 @@ function env_var_check() {
 		if [ ! -z "$API_TOEN" ]; then
 			log "	- API_TOKEN/API_TOKEN_FILE"
 		fi	
-		if [ ! -z  "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
+		if [ ! -z  "$A_RECORD_ID" && ! -z "$A_RECORD_NAME" ]; then
 			log "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
 		fi
 		exit 1;
