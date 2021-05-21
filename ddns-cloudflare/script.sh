@@ -7,8 +7,7 @@
 # $A_RECORD_ID
 
 # Retrieve the last recorded public IP address
-IP_RECORD="/tmp/ip"
-RECORDED_IP=`cat $IP_RECORD`
+RECORDED_IP=`cat $CACHED_IP_RECORD`
 
 # Fetch the current public IP address
 PUBLIC_IP=$(curl --silent https://api.ipify.org) || exit 1
@@ -21,7 +20,7 @@ echo "IP has changed. Notifying Cloud-flare"
 echo "\tcurrent: '"$PUBLIC_IP"'. previous: '"$RECORDED_IP"'"
 # Otherwise, your Internet provider changed your public IP again.
 # Record the new public IP address locally
-echo $PUBLIC_IP > $IP_RECORD
+echo $PUBLIC_IP > $CACHED_IP_RECORD
 
 # Record the new public IP address on Cloudflare using API v4
 RECORD=$(cat <<EOF
