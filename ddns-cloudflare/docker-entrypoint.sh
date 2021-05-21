@@ -24,7 +24,6 @@ file_env 'API_TOKEN'
 file_env 'A_RECORD_NAME'
 file_env 'A_RECORD_ID'
 
-
 if [ ! -z "$ZONE_ID" || ! -z "$API_TOEN" || ( ! -z "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
 	echo "Environment variables are missing! Cannot start the container without these variables. "
 	echo "Ensure you have the following set correctly: "
@@ -40,11 +39,27 @@ if [ ! -z "$ZONE_ID" || ! -z "$API_TOEN" || ( ! -z "$A_RECORD_ID" && ! -z "$A_RE
 	exit 1;
 fi
 
-touch /tmp/ip
+export "CACHED_IP_RECORD"="/tmp/ip"
+touch "$CACHED_IP_RECORD"
+RECORD=""
+# If ID is not set then pull by name
 if [ ! -z "$A_RECORD_ID"  &&  -z "$A_RECORD_NAME" ]; then
-	pull ID from api or pull NAME from api
-	pull IP from api
+	RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A$name=$A_RECORD_NAME" \
+    			-H "content-type: application/json" \
+    			-H "Authorization: Bearer $API_TOKEN"
+		)
+	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
+#If Name is not set then pull by ID
+elif [  -z "$A_RECORD_ID"  && ! -z "$A_RECORD_NAME" ]; then
+	RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
+    			-H "content-type: application/json" \
+    			-H "Authorization: Bearer $API_TOKEN"
+		)
+	A_RECORD_NAME=$(echo "$RESULT" | jq -r .result[0].name)
 fi
+echo  $(echo "$RESULT" | jq -r .result[0].content) > $CACHED_IP_RECORD
+	
+	
 echo "$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log" | tee /crontab.txt 
 /usr/bin/crontab /crontab.txt
 ln -sf /dev/stdout /var/log/script.log 
