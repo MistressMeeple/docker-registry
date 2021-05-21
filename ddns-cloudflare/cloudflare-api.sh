@@ -6,7 +6,7 @@ function update_record_name_env() {
         -H "Authorization: Bearer $API_TOKEN"
     )
     A_RECORD_NAME=$(echo "$RESULT" | jq -r .result[0].name) 
-    echo "Updated A_RECORD_NAME: $A_RECORD_NAME"
+    echo "Updated A_RECORD_NAME: $A_RECORD_NAME" >&2
 }
 
 function update_record_ID_env(){
@@ -15,7 +15,7 @@ function update_record_ID_env(){
 		-H "Authorization: Bearer $API_TOKEN"
     )
 	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
-    echo "Updated A_RECORD_ID: $A_RECORD_NAME"
+    echo "Updated A_RECORD_ID: $A_RECORD_NAME" >&2
 }
 function update_record_env() {
 
@@ -34,5 +34,5 @@ function update_cached_ip() {
         -H "Authorization: Bearer $API_TOKEN"
     )
     echo "$(echo "$RESULT" | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
-    echo "Updated Cached IP: "$(cat "$CACHED_IP_RECORD")
+    echo "Updated Cached IP: "$(cat "$CACHED_IP_RECORD")>&2
 }
