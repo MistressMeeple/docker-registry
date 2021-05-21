@@ -17,7 +17,8 @@ if [ "$PUBLIC_IP" = "$RECORDED_IP" ]; then
     exit 0
 fi
 echo "IP has changed. Notifying Cloud-flare"
-echo "\tcurrent: '"$PUBLIC_IP"'. previous: '"$RECORDED_IP"'"
+echo "  previous:   '$RECORDED_IP'"
+echo "  current:    '$PUBLIC_IP'"
 # Otherwise, your Internet provider changed your public IP again.
 # Record the new public IP address locally
 echo $PUBLIC_IP > $CACHED_IP_RECORD
