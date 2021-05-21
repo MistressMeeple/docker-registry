@@ -10,4 +10,6 @@ ENV A_RECORD_ID=""
 ENV CACHED_IP_RECORD="/tmp/cached-ip"
 
 ADD script.sh /
+ADD cloudflare-api.sh /
+ADD docker-entrypoint.sh /
 CMD ["/docker-entrypoint.sh"]
