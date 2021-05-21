@@ -53,10 +53,6 @@ function setup() {
 	env_var_check();
 	# Create the chaced ip record file
 	touch "$CACHED_IP_RECORD"
-	# Create the crontab file
-	touch /crontab.txt
-	# set permissions on all files
-	chmod 755 /script.sh /docker-entrypoint.sh /crontab.txt /cloudflare-api.sh
 	# load the API scripts
 	. /cloudflare-api.sh
 	# Run the scripts to update local records from upstream
