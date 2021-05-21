@@ -23,7 +23,7 @@ function file_env() {
 	unset "$fileVar"
 }
 
-function env_var_check() {
+env_var_check() {
 	if [ ! -z "$ZONE_ID" ] || [ ! -z "$API_TOEN" ] ||  ( [ ! -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ] ); then
 		log "Environment variables are missing! Cannot start the container without these variables. " 
 		log "Ensure you have the following set correctly: "
@@ -40,9 +40,9 @@ function env_var_check() {
 	else
 		log "Environment variables seem to be setup correctly" 
 	fi
-}>&2
+}
 
-function setup() {
+setup() {
 	
 	# Turn _FILE env vars to their normal
 	file_env 'ZONE_ID'
@@ -50,7 +50,7 @@ function setup() {
 	file_env 'A_RECORD_NAME'
 	file_env 'A_RECORD_ID'
 	# Check we have all necessary env vars set
-	env_var_check();
+	env_var_check
 	# Create the chaced ip record file
 	touch "$CACHED_IP_RECORD"
 	# load the API scripts
@@ -67,7 +67,7 @@ function setup() {
 	log "Setup complete"
 }
 
-function start() {
+start() {
 	log "Starting crond"
 	/usr/sbin/crond -f -l $LOGGING_LEVEL
 }
