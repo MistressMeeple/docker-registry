@@ -12,4 +12,5 @@ ENV CACHED_IP_RECORD="/tmp/cached-ip"
 ADD script.sh /
 ADD cloudflare-api.sh /
 ADD docker-entrypoint.sh /
+RUN chmod 755 /script.sh /docker-entrypoint.sh /crontab.txt /cloudflare-api.sh
 CMD ["/docker-entrypoint.sh"]
