@@ -10,11 +10,12 @@ function update_record_name_env() {
 }
 
 function update_record_ID_env(){
-    local RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A$name=$A_RECORD_NAME" \
-        -H "content-type: application/json" \
-    	-H "Authorization: Bearer $API_TOKEN"
+	local RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A$name=$A_RECORD_NAME" \
+    	-H "content-type: application/json" \
+		-H "Authorization: Bearer $API_TOKEN"
     )
 	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
+    echo "Updated A_RECORD_ID: $A_RECORD_NAME"
 }
 function update_record_env() {
 
@@ -32,5 +33,6 @@ function update_cached_ip() {
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
-    CACHED_IP_RECORD=$(echo "$RESULT" | jq -r .result[0].content)
+    echo "$(echo "$RESULT" | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
+    echo "Updated Cached IP: "$(cat "$CACHED_IP_RECORD")
 }
