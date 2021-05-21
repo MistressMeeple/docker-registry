@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -e
 
-file_env() {
+function file_env() {
 	local var="$1"
 	local fileVar="${var}_FILE"
 	local def="${2:-}"
@@ -19,51 +19,55 @@ file_env() {
 	unset "$fileVar"
 }
 
-file_env 'ZONE_ID'
-file_env 'API_TOKEN'
-file_env 'A_RECORD_NAME'
-file_env 'A_RECORD_ID'
-
-if [ ! -z "$ZONE_ID" || ! -z "$API_TOEN" || ( ! -z "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
-	echo "Environment variables are missing! Cannot start the container without these variables. "
-	echo "Ensure you have the following set correctly: "
-	if [ ! -z "$ZONE_ID" ]; then
-		echo "	- ZONE_ID/ZONE_ID_FILE"
+function env_var_check() {
+	if [ ! -z "$ZONE_ID" || ! -z "$API_TOEN" || ( ! -z "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
+		echo "Environment variables are missing! Cannot start the container without these variables. "
+		echo "Ensure you have the following set correctly: "
+		if [ ! -z "$ZONE_ID" ]; then
+			echo "	- ZONE_ID/ZONE_ID_FILE"
+		fi
+		if [ ! -z "$API_TOEN" ]; then
+			echo "	- API_TOKEN/API_TOKEN_FILE"
+		fi	
+		if [ ! -z  "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
+			echo "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
+		fi
+		exit 1;
 	fi
-	if [ ! -z "$API_TOEN" ]; then
-		echo "	- API_TOKEN/API_TOKEN_FILE"
-	fi	
-	if [ ! -z  "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
-		echo "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
-	fi
-	exit 1;
-fi
+}
 
-export "CACHED_IP_RECORD"="/tmp/ip"
-touch "$CACHED_IP_RECORD"
-RECORD=""
-# If ID is not set then pull by name
-if [ ! -z "$A_RECORD_ID"  &&  -z "$A_RECORD_NAME" ]; then
-	RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A$name=$A_RECORD_NAME" \
-    			-H "content-type: application/json" \
-    			-H "Authorization: Bearer $API_TOKEN"
-		)
-	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
-#If Name is not set then pull by ID
-elif [  -z "$A_RECORD_ID"  && ! -z "$A_RECORD_NAME" ]; then
-	RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
-    			-H "content-type: application/json" \
-    			-H "Authorization: Bearer $API_TOKEN"
-		)
-	A_RECORD_NAME=$(echo "$RESULT" | jq -r .result[0].name)
-fi
-echo  $(echo "$RESULT" | jq -r .result[0].content) > $CACHED_IP_RECORD
+function setup() {
 	
+	# Turn _FILE env vars to their normal
+	file_env 'ZONE_ID'
+	file_env 'API_TOKEN'
+	file_env 'A_RECORD_NAME'
+	file_env 'A_RECORD_ID'
+	# Check we have all necessary env vars set
+	env_var_check();
+	# Create the chaced ip record file
+	touch "$CACHED_IP_RECORD"
+	# Create the crontab file
+	touch /crontab.txt
+	# set permissions on all files
+	chmod 755 /script.sh /docker-entrypoint.sh /crontab.txt /cloudflare-api.sh
+	# load the API scripts
+	. /cloudflare-api.sh
+	# Run the scripts to update local records from upstream
+	update_record_env
+	update_cached_ip
+	# Create the crontab file, and set it up
+	echo "$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log" | tee /crontab.txt 
+	/usr/bin/crontab /crontab.txt
 	
-echo "$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log" | tee /crontab.txt 
-/usr/bin/crontab /crontab.txt
-ln -sf /dev/stdout /var/log/script.log 
-chmod 755 /script.sh /docker-entrypoint.sh 
+	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
+	ln -sf /dev/stdout /var/log/script.log 
+}
 
+function start() {
+	/usr/sbin/crond -f -l $LOGGING_LEVEL
+}
 
-/usr/sbin/crond -f -l $LOGGING_LEVEL
+setup
+# And if everything went well, we can start
+start
