@@ -7,7 +7,7 @@ function file_env() {
 	local fileVar="${var}_FILE"
 	local def="${2:-}"
 	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
-		echo  "Both $var and $fileVar are set (but are exclusive)"
+		echo  "Both $var and $fileVar are set (but are exclusive)" >&2
 	fi
 	local val="$def"
 	if [ "${!var:-}" ]; then
@@ -21,7 +21,7 @@ function file_env() {
 
 function env_var_check() {
 	if [ ! -z "$ZONE_ID" || ! -z "$API_TOEN" || ( ! -z "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
-		echo "Environment variables are missing! Cannot start the container without these variables. "
+		echo "Environment variables are missing! Cannot start the container without these variables. " 
 		echo "Ensure you have the following set correctly: "
 		if [ ! -z "$ZONE_ID" ]; then
 			echo "	- ZONE_ID/ZONE_ID_FILE"
@@ -36,7 +36,7 @@ function env_var_check() {
 	else
 		echo "Environment variables seem to be setup correctly" 
 	fi
-}
+}>&2
 
 function setup() {
 	
@@ -64,11 +64,11 @@ function setup() {
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
 	ln -sf /dev/stdout /var/log/script.log 
-	echo "Setup complete"
+	echo "Setup complete">&2
 }
 
 function start() {
-	echo "Starting crond"
+	echo "Starting crond">&2
 	/usr/sbin/crond -f -l $LOGGING_LEVEL
 }
 
