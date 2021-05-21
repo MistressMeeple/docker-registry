@@ -68,5 +68,4 @@ setup() {
 }
 
 setup
-log "Starting crond"
 /usr/sbin/crond -f -l $LOGGING_LEVEL
