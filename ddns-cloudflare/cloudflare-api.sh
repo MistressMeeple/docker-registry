@@ -20,10 +20,10 @@ update_record_ID_env(){
 update_record_env() {
 
     # If ID is not set then pull by name
-    if [ ! -z "$A_RECORD_ID"  &&  -z "$A_RECORD_NAME" ]; then
+    if [ ! -z "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
         update_record_name_env
     #If Name is not set then pull by ID
-    elif [  -z "$A_RECORD_ID"  && ! -z "$A_RECORD_NAME" ]; then
+    elif [  -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ]; then
         update_record_ID_env
     fi
 }
