@@ -4,7 +4,7 @@ set -e
 
 # logging functions
 log() {
-	printf '%s\n'  "$1"
+	printf '%s\n'  "$1" >&2
 }
 function file_env() {
 	local var="$1"
