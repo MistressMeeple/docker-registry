@@ -25,24 +25,25 @@ file_env 'A_RECORD_NAME'
 file_env 'A_RECORD_ID'
 
 
-if [ "$ZONE_ID" == EMPTY || "$API_TOEN"==EMPTY || ( "$A_RECORD_ID"== EMPTY && "$A_RECORD_NAME" == EMPTY) ]; then
+if [ ! -z "$ZONE_ID" || ! -z "$API_TOEN" || ( ! -z "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
 	echo "Environment variables are missing! Cannot start the container without these variables. "
 	echo "Ensure you have the following set correctly: "
-	if [ "$ZONE_ID" == EMPTY ]; then
+	if [ ! -z "$ZONE_ID" ]; then
 		echo "	- ZONE_ID/ZONE_ID_FILE"
 	fi
-	if [ "$API_TOEN" == EMPTY ]; then
+	if [ ! -z "$API_TOEN" ]; then
 		echo "	- API_TOKEN/API_TOKEN_FILE"
 	fi	
-	if [  "$A_RECORD_ID"== EMPTY && "$A_RECORD_NAME" == EMPTY) ]; then
+	if [ ! -z  "$A_RECORD_ID" && ! -z "$A_RECORD_NAME") ]; then
 		echo "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
 	fi
 	exit 1;
 fi
 
 touch /tmp/ip
-if [ "$A_RECORD_ID" == EMPTY  && "$A_RECORD_NAME" != EMPTY ]; then
-	pull down from api
+if [ ! -z "$A_RECORD_ID"  &&  -z "$A_RECORD_NAME" ]; then
+	pull ID from api or pull NAME from api
+	pull IP from api
 fi
 echo "$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log" | tee /crontab.txt 
 /usr/bin/crontab /crontab.txt
