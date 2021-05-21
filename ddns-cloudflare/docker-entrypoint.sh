@@ -67,11 +67,6 @@ setup() {
 	log "Setup complete"
 }
 
-start() {
-	log "Starting crond"
-	/usr/sbin/crond -f -l $LOGGING_LEVEL
-}
-
 setup
-# And if everything went well, we can start
-start
+log "Starting crond"
+/usr/sbin/crond -f -l $LOGGING_LEVEL
