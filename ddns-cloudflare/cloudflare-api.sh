@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# logging functions
-log() {
-	printf '%s\n'  "$1"
-}
 update_record_name_env() { 
     local RESULT=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
         -H "content-type: application/json" \
