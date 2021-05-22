@@ -9,20 +9,20 @@ log() {
 	local type="$1"; shift
 	# accept argument string or stdin
 	local text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
-	local dt; dt="$(date --rfc-3339=seconds)"
-	printf '%s [%s] [Entrypoint]: %s\n' "$dt" "$type" "$text"
+	
+	printf '%s [Entrypoint]: %s\n' "$type" "$text"
 }
 note() {
 	log Note "$@"
 }
 msg() {
-	log Message "$@" >&2
+	log Msg "$@" >&2
 }
 warn() {
 	log Warn "$@" >&2
 }
 error() {
-	log ERROR "$@" >&2
+	log ERR "$@" >&2
 }
 
 function file_env() {
