@@ -3,14 +3,12 @@
 set -e
 
 # logging functions
-
-
 log() {
 	local type="$1"; shift
 	# accept argument string or stdin
 	local text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
 	
-	printf '%s [Entrypoint]: %s\n' "$type" "$text"
+	printf '%6s [Entrypoint]: %s\n' "[$type]" "$text"
 }
 note() {
 	log Note "$@"
