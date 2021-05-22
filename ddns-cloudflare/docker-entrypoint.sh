@@ -3,15 +3,34 @@
 set -e
 
 # logging functions
+
+
 log() {
-	printf '%s\n'  "$1" >&2
+	local type="$1"; shift
+	# accept argument string or stdin
+	local text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
+	local dt; dt="$(date --rfc-3339=seconds)"
+	printf '%s [%s] [Entrypoint]: %s\n' "$dt" "$type" "$text"
 }
+note() {
+	log Note "$@"
+}
+msg() {
+	log Message "$@" >&2
+}
+warn() {
+	log Warn "$@" >&2
+}
+error() {
+	log ERROR "$@" >&2
+}
+
 function file_env() {
 	local var="$1"
 	local fileVar="${var}_FILE"
 	local def="${2:-}"
 	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
-		log  "Both $var and $fileVar are set (but are exclusive)"
+		error "Both $var and $fileVar are set (but are exclusive)"
 	fi
 	local val="$def"
 	if [ "${!var:-}" ]; then
@@ -25,20 +44,20 @@ function file_env() {
 
 env_var_check() {
 	if [ ! -z "$ZONE_ID" ] || [ ! -z "$API_TOEN" ] ||  ( [ ! -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ] ); then
-		log "Environment variables are missing! Cannot start the container without these variables. " 
-		log "Ensure you have the following set correctly: "
+		error "Environment variables are missing! Cannot start the container without these variables. " 
+		error "Ensure you have the following set correctly: "
 		if [ ! -z "$ZONE_ID" ]; then
-			log "	- ZONE_ID/ZONE_ID_FILE"
+			error "	- ZONE_ID/ZONE_ID_FILE"
 		fi
 		if [ ! -z "$API_TOEN" ]; then
-			log "	- API_TOKEN/API_TOKEN_FILE"
+			error "	- API_TOKEN/API_TOKEN_FILE"
 		fi	
 		if [ ! -z  "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ]; then
-			log "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
+			error "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
 		fi
 		exit 1;
 	else
-		log "Environment variables seem to be setup correctly" 
+		msg "Environment variables seem to be setup correctly" 
 	fi
 }
 
@@ -64,8 +83,8 @@ setup() {
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
 	ln -sf /dev/stdout /var/log/script.log 
-	log "Setup complete"
+	msg "Setup complete"
 }
 setup
-#log "Starting crond"
+msg "Starting crond"
 /usr/sbin/crond -f # -l $LOGGING_LEVEL
