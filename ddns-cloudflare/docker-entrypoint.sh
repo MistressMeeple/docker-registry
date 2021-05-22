@@ -55,13 +55,13 @@ setup() {
 	update_record_env
 	update_cached_ip
 	# Create the crontab file, and set it up
-	echo "$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log" | tee /crontab.txt 
+	echo "$SCRIPT_SCHEDULE \/script.sh  >> /var/log/script.log" | tee /crontab.txt 
 	/usr/bin/crontab /crontab.txt
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
 	ln -sf /dev/stdout /var/log/script.log 
 	msg "Setup complete"
+	# msg "Starting crond"
+	/usr/sbin/crond -f # -l $LOGGING_LEVEL
 }
 setup
-# msg "Starting crond"
-/usr/sbin/crond -f # -l $LOGGING_LEVEL
