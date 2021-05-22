@@ -23,32 +23,19 @@ error() {
 	log ERROR "$@" >&2
 }
 
-function file_env() {	
-	local fileVar="$(echo ${1}_FILE)"
-	
-	if [ -f "$fileVar" ]; then
-		msg "Loading env variable: $1"
-		msg "from file: $fileVar"
-		contents=$(cat $fileVar)
-		export "$1"="$(echo $contents)"
-		unset "$fileVar"
-	else
-		msg "File ($fileVar) not found"
-	fi
-}
 
 env_var_check() {
 	if [ ! -z "$ZONE_ID" ] || [ ! -z "$API_TOEN" ] ||  ( [ ! -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ] ); then
 		error "Environment variables are missing! Cannot start the container without these variables. " 
 		error "Ensure you have the following set correctly: "
 		if [ ! -z "$ZONE_ID" ]; then
-			error "	- ZONE_ID/ZONE_ID_FILE"
+			error "	- ZONE_ID"
 		fi
 		if [ ! -z "$API_TOEN" ]; then
-			error "	- API_TOKEN/API_TOKEN_FILE"
+			error "	- API_TOKEN"
 		fi	
 		if [ ! -z  "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ]; then
-			error "	- A_RECORD_ID/A_RECORD_ID_FILE or A_RECORD_NAME/A_RECORD_NAME_FILE"
+			error "	- A_RECORD_ID or A_RECORD_NAME"
 		fi
 		exit 1;
 	else
@@ -58,11 +45,6 @@ env_var_check() {
 
 setup() {
 	
-	# Turn _FILE env vars to their normal
-	file_env 'ZONE_ID'
-	file_env 'API_TOKEN'
-	file_env 'A_RECORD_NAME'
-	file_env 'A_RECORD_ID'
 	# Check we have all necessary env vars set
 	env_var_check
 	# Create the chaced ip record file
