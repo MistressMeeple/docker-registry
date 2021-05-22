@@ -8,7 +8,7 @@ log() {
 	# accept argument string or stdin
 	local text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
 	
-	printf '[%4s][Entrypoint]: %s\n' "$type" "$text"
+	printf '[%5s][Entrypoint]: %s\n' "$type" "$text"
 }
 note() {
 	log Note "$@"
@@ -20,24 +20,21 @@ warn() {
 	log Warn "$@" >&2
 }
 error() {
-	log ERR "$@" >&2
+	log ERROR "$@" >&2
 }
 
-function file_env() {
-	local var="$1"
-	local fileVar="${var}_FILE"
-	local def="${2:-}"
-	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
-		error "Both $var and $fileVar are set (but are exclusive)"
+function file_env() {	
+	local fileVar="$(echo ${1}_FILE)"
+	
+	if [ -f "$fileVar" ]; then
+		msg "Loading env variable: $1"
+		msg "from file: $fileVar"
+		contents=$(cat $fileVar)
+		export "$1"="$(echo $contents)"
+		unset "$fileVar"
+	else
+		msg "File ($fileVar) not found"
 	fi
-	local val="$def"
-	if [ "${!var:-}" ]; then
-		val="${!var}"
-	elif [ "${!fileVar:-}" ]; then
-		val="$(< "${!fileVar}")"
-	fi
-	export "$var"="$val"
-	unset "$fileVar"
 }
 
 env_var_check() {
