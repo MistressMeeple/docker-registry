@@ -25,7 +25,9 @@ error() {
 
 
 env_var_check() {
-	if [ ! -z "$ZONE_ID" ] || [ ! -z "$API_TOEN" ] ||  ( [ ! -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ] ); then
+	if [ -z "$ZONE_ID" ] && [ -z "$API_TOEN" ] &&  ( [ -z "$A_RECORD_ID" ] || [ -z "$A_RECORD_NAME" ] ); then
+		msg "Environment variables seem to be setup correctly" 
+	else
 		error "Environment variables are missing! Cannot start the container without these variables. " 
 		error "Ensure you have the following set correctly: "
 		if [ ! -z "$ZONE_ID" ]; then
@@ -34,12 +36,10 @@ env_var_check() {
 		if [ ! -z "$API_TOEN" ]; then
 			error "	- API_TOKEN"
 		fi	
-		if [ ! -z  "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ]; then
+		if [ ! -z  "$A_RECORD_ID" ] || [ ! -z "$A_RECORD_NAME" ]; then
 			error "	- A_RECORD_ID or A_RECORD_NAME"
 		fi
 		exit 1;
-	else
-		msg "Environment variables seem to be setup correctly" 
 	fi
 }
 
