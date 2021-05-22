@@ -86,5 +86,5 @@ setup() {
 	msg "Setup complete"
 }
 setup
-msg "Starting crond"
+# msg "Starting crond"
 /usr/sbin/crond -f # -l $LOGGING_LEVEL
