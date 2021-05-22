@@ -13,4 +13,4 @@ ADD script.sh /
 ADD cloudflare-api.sh /
 ADD docker-entrypoint.sh /
 RUN touch /crontab.txt && chmod 755 /script.sh /docker-entrypoint.sh /crontab.txt /cloudflare-api.sh
-#CMD ["/docker-entrypoint.sh"]
+CMD ["/docker-entrypoint.sh"]
