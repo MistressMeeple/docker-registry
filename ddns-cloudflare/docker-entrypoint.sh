@@ -8,7 +8,7 @@ log() {
 	# accept argument string or stdin
 	local text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
 	
-	printf '%6s [Entrypoint]: %s\n' "[$type]" "$text"
+	printf '[%4s][Entrypoint]: %s\n' "$type" "$text"
 }
 note() {
 	log Note "$@"
