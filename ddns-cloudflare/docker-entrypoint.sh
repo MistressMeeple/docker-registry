@@ -3,39 +3,36 @@
 set -e
 
 # logging functions
-log() {
-	local type="$1"; shift
+println() {
+	type="$1"; shift
 	# accept argument string or stdin
-	local text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
+	text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
 	
 	printf '[%5s][Entrypoint]: %s\n' "$type" "$text"
 }
-note() {
-	log Note "$@"
-}
-msg() {
-	log Msg "$@" >&2
+log() {
+	println Msg "$@" >&2
 }
 warn() {
-	log Warn "$@" >&2
+	println Warn "$@" >&2
 }
 error() {
-	log ERROR "$@" >&2
+	println ERROR "$@" >&2
 }
 
 env_from_file(){
-	msg "[Env-Arg] Starting checks on $1"
+	log "[Env-Arg] Starting checks on $1"
 	#if unset
 	if [ "${1:-}" ]; then 
-		msg "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
-		local file_var=$(echo \$${1}_FILE)
+		log "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
+		file_var=$(echo \$"${1}"_FILE)
 		if [ "${file_var:-}" ]; then
-			msg "[Env-Arg]   $file_var has been set" 
-			local file_loc=$(eval echo ${file_var})
+			log "[Env-Arg]   $file_var has been set" 
+			file_loc=$(eval echo "${file_var}")
 			if  [ -f "${file_loc}" ]; then 
-				msg "[Env-Arg]   File exists, now putting the contents into $1"
-				export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
-				unset $(echo "$file_var" | sed 's/\$//')
+				log "[Env-Arg]   File exists, now putting the contents into $1"
+				export "${1}"="$(eval cat '$file_var')"
+				unset "$(echo "$file_var" | sed 's/\$//')"
 			else
 				error "[Env-Arg]   $file_loc does NOT exist"
 			fi
@@ -44,14 +41,14 @@ env_from_file(){
 			error "[Env-Arg]   '$file_var' has NOT been set."
 		fi
 	else
-		msg "[Env-Arg]   $1 is already set, skipping"
+		log "[Env-Arg]   $1 is already set, skipping"
 	fi
 	#export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
 }
 
 env_var_check() {
 	if [ "$ZONE_ID" ] &&  [ "$API_TOKEN" ] && { [ "$A_RECORD_ID" ] || [ "$A_RECORD_NAME" ]; }  then
-		msg "Environment variables seem to be setup correctly" 
+		log "Environment variables seem to be setup correctly" 
 	else
 		error "Environment variables are missing! Cannot start the container without these variables. " 
 		error "Ensure you have the following set correctly: "
@@ -70,6 +67,43 @@ env_var_check() {
 	fi
 }
 
+update_record_name_env() { 
+    RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
+        -H "content-type: application/json" \
+        -H "Authorization: Bearer $API_TOKEN"
+    )
+    A_RECORD_NAME=$(echo "$RESULT" | jq -r .result[0].name) 
+    log "Updated A_RECORD_NAME: $A_RECORD_NAME" >&2
+}
+
+update_record_ID_env(){
+	RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$A_RECORD_NAME" \
+		-H "content-type: application/json" \
+		-H "Authorization: Bearer $API_TOKEN"
+    )
+	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
+	log "Updated A_RECORD_ID: $A_RECORD_NAME" >&2
+}
+update_record_env() {
+
+    # If ID is not set then pull by name
+    if [ -n "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
+        update_record_name_env
+    #If Name is not set then pull by ID
+    elif [  -z "$A_RECORD_ID" ] && [ -n "$A_RECORD_NAME" ]; then
+        update_record_ID_env
+    fi
+}
+update_cached_ip() {
+
+    RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
+        -H "content-type: application/json" \
+        -H "Authorization: Bearer $API_TOKEN"
+    )
+    log "$(echo "$RESULT" | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
+    log "Updated Cached IP: ""$(cat "$CACHED_IP_RECORD")">&2
+}
+
 setup() {
 	env_from_file "ZONE_ID"
 	env_from_file "API_TOKEN"
@@ -79,8 +113,6 @@ setup() {
 	env_var_check
 	# Create the chaced ip record file
 	touch "$CACHED_IP_RECORD"
-	# load the API scripts
-	. /cloudflare-api.sh
 	# Run the scripts to update local records from upstream
 	update_record_env
 	update_cached_ip
