@@ -8,8 +8,8 @@ println() {
 	# accept argument string or stdin
 	text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
 	
-	printf '[%5s] [Entrypoint] %s\n' "$type" "$text"
-}>&2
+	printf '[%5s] [Entrypoint] %s\n' "$type" "$text" >&2
+}
 log() {
 	println " log " "$@"
 }
@@ -71,7 +71,7 @@ update_record_name_env() {
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
-    A_RECORD_NAME=$(echo "$RESULT" | jq -r .result[0].name) 
+    A_RECORD_NAME=$("echo $RESULT | jq -r .result[0].name") 
     log "Updated A_RECORD_NAME: $A_RECORD_NAME" >&2
 }
 
@@ -81,7 +81,7 @@ update_record_ID_env(){
 		-H "content-type: application/json" \
 		-H "Authorization: Bearer $API_TOKEN"
     )
-    A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
+    A_RECORD_ID=$("echo $RESULT | jq -r .result[0].id")
     log "Updated A_RECORD_ID: $A_RECORD_NAME" >&2
 }
 
