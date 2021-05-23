@@ -66,7 +66,8 @@ env_var_check() {
 }
 
 update_record_name_env() { 
-    RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
+    log "[Update A-Record Name] Requesting"
+	RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
@@ -75,6 +76,7 @@ update_record_name_env() {
 }
 
 update_record_ID_env(){
+	log "[Update A-Record ID] Requesting"
 	RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=A&name=$A_RECORD_NAME" \
 		-H "content-type: application/json" \
 		-H "Authorization: Bearer $API_TOKEN"
@@ -84,7 +86,7 @@ update_record_ID_env(){
 }
 
 update_record_env() {
-
+	
     # If ID is not set then pull by name
     if [ ! -z "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
         update_record_name_env
@@ -95,7 +97,7 @@ update_record_env() {
 }
 
 update_cached_ip() {
-
+	log "[Cache_IP] Requesting"
     RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
@@ -117,7 +119,9 @@ setup() {
 	update_record_env
 	update_cached_ip
 	# Create the crontab file, and set it up
-	echo "$SCRIPT_SCHEDULE \/script.sh  >> /var/log/script.log" | tee /crontab.txt 
+	cat > /crontab.txt << EOF
+	$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log
+	EOF	
 	/usr/bin/crontab /crontab.txt
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
