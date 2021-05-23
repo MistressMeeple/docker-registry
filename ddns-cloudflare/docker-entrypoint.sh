@@ -24,26 +24,27 @@ error() {
 }
 
 env_from_file(){
+	msg "[Env-Arg] Starting checks on $1"
 	#if unset
 	if [ "${1:-}" ]; then 
-		msg "[Env-Arg] $1 is unset, attempting to pull from ${1}_FILE"; 
+		msg "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
 		local file_var=$(echo \$${1}_FILE)
 		if [ "${file_var:-}" ]; then
-			msg "[Env-Arg] $file_var has been set" 
+			msg "[Env-Arg]   $file_var has been set" 
 			local file_loc=$(eval echo ${file_var})
 			if  [ -f "${file_loc}" ]; then 
-				msg "[Env-Arg] File exists, now putting the contents into $1"
+				msg "[Env-Arg]   File exists, now putting the contents into $1"
 				export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
 				unset $(echo "$file_var" | sed 's/\$//')
 			else
-				error "[Env-Arg] $file_loc does NOT exist"
+				error "[Env-Arg]   $file_loc does NOT exist"
 			fi
 			#if [ ! -z "${1}_FILE" ] && [ -f "${1}_FILE" ]; then local content=$(eval "cat $(echo $(echo \$${1}_FILE))")msg "File extists and is updating env-var"msg "'$content'"			else	msg "File not found"		fi
 		else
-			error "[Env-Arg] '$file_var' has NOT been set."
+			error "[Env-Arg]   '$file_var' has NOT been set."
 		fi
 	else
-		msg "[Env-Arg] $1 is already set, skipping"
+		msg "[Env-Arg]   $1 is already set, skipping"
 	fi
 	#export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
 }
