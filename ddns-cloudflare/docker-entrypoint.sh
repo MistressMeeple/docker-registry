@@ -122,8 +122,9 @@ setup() {
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
 	ln -sf /dev/stdout /var/log/script.log 
-	msg "Setup complete"
-	# msg "Starting crond"
-	/usr/sbin/crond -f # -l $LOGGING_LEVEL
+	log "Setup complete"
 }
 setup
+
+log "Starting crond"
+/usr/sbin/crond -f -l $LOGGING_LEVEL
