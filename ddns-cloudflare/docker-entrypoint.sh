@@ -25,10 +25,10 @@ env_from_file(){
 	#if unset
 	if [ "${1:-}" ]; then 
 		log "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
-		file_var=$(echo \$${1}_FILE)
+		file_var=\$"${1}"_FILE
 		if [ "${file_var:-}" ]; then
 			log "[Env-Arg]   $file_var has been set" 
-			file_loc=$(eval echo ${file_var})
+			file_loc=$(eval echo "${file_var}")
 			if  [ -f "${file_loc}" ]; then 
 				log "[Env-Arg]   File exists, now putting the contents into $1"
 				export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
@@ -103,7 +103,7 @@ update_cached_ip() {
         -H "Authorization: Bearer $API_TOKEN"
     )
     echo "$RESULT" | jq -r .result.content | tee "$CACHED_IP_RECORD"
-    log "Updated Cached IP: $(cat $CACHED_IP_RECORD)">&2
+    log "Updated Cached IP: $(cat "$CACHED_IP_RECORD")">&2
 }
 
 setup() {
