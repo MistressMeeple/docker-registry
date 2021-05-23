@@ -102,7 +102,7 @@ update_cached_ip() {
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
-    echo "$RESULT" | jq -r .result[0].content | tee "$CACHED_IP_RECORD"
+    echo "$RESULT" | jq -r .result.content | tee "$CACHED_IP_RECORD"
     log "Updated Cached IP: $(cat '$CACHED_IP_RECORD')">&2
 }
 
