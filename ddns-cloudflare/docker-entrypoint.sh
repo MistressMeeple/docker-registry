@@ -50,7 +50,9 @@ env_from_file(){
 }
 
 env_var_check() {
-	if [ -z "$ZONE_ID" ] && [ -z "$API_TOEN" ] &&  ( [ -z "$A_RECORD_ID" ] || [ -z "$A_RECORD_NAME" ] ); then
+
+	if [ ! "${1:-}" ]; then 
+	if [ -z "$ZONE_ID" ] && [ -z "$API_TOKEN" ] &&  ( [ -z "$A_RECORD_ID" ] || [ -z "$A_RECORD_NAME" ] ); then
 		msg "Environment variables seem to be setup correctly" 
 	else
 		error "Environment variables are missing! Cannot start the container without these variables. " 
@@ -58,12 +60,14 @@ env_var_check() {
 		if [ -z "$ZONE_ID" ]; then
 			error "	- ZONE_ID"
 		fi
-		if [ -z "$API_TOEN" ]; then
+		if [ -z "$API_TOkEN" ]; then
 			error "	- API_TOKEN"
 		fi	
 		if [ -z  "$A_RECORD_ID" ] || [ ! -z "$A_RECORD_NAME" ]; then
 			error "	- A_RECORD_ID or A_RECORD_NAME"
 		fi
+		error "Alternatively set each of the required EnvArgs with a file (Docker secrets) by appening '_FILE' to the definition"
+		error "e.g. '-e A_RECORD_NAME_FILE=/run/secrets/A_RECORD_NAME.txt'"
 		exit 1;
 	fi
 }
