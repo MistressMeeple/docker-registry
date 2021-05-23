@@ -50,6 +50,10 @@ env_from_file(){
 }
 
 env_var_check() {
+	msg "$ZONE_ID"
+	msg "$API_TOKEN"
+	msg "$A_RECORD_ID"
+	msg "$A_RECORD_NAME"
 	if [ -z "$ZONE_ID" ] && [ -z "$API_TOKEN" ] &&  ( [ -z "$A_RECORD_ID" ] || [ -z "$A_RECORD_NAME" ] ); then
 		msg "Environment variables seem to be setup correctly" 
 	else
