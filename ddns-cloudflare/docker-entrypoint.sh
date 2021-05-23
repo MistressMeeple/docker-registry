@@ -25,14 +25,14 @@ env_from_file(){
 	#if unset
 	if [ "${1:-}" ]; then 
 		log "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
-		file_var=$(echo \$${1}_FILE)
+		file_var=$("echo \$${1}_FILE")
 		if [ "${file_var:-}" ]; then
 			log "[Env-Arg]   $file_var has been set" 
-			file_loc=$(eval echo ${file_var})
+			file_loc=$("eval echo ${file_var}")
 			if  [ -f "${file_loc}" ]; then 
 				log "[Env-Arg]   File exists, now putting the contents into $1"
 				export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
-				unset $(echo "$file_var" | sed 's/\$//')
+				unset "$("echo $file_var | sed 's/\$//'")"
 			else
 				error "[Env-Arg]   $file_loc does NOT exist"
 			fi
@@ -88,10 +88,10 @@ update_record_ID_env(){
 update_record_env() {
 	
     # If ID is not set then pull by name
-    if [ ! -z "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
+    if [ -n "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
         update_record_name_env
     #If Name is not set then pull by ID
-    elif [  -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ]; then
+    elif [ -z "$A_RECORD_ID" ] && [ -n "$A_RECORD_NAME" ]; then
         update_record_ID_env
     fi
 }
@@ -102,8 +102,8 @@ update_cached_ip() {
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
-    echo "$(echo $RESULT | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
-    log "Updated Cached IP: $(cat '$CACHED_IP_RECORD')">&2
+    echo "$RESULT" | jq -r .result[0].content | tee "$CACHED_IP_RECORD"
+    log "Updated Cached IP: $(cat "$CACHED_IP_RECORD")">&2
 }
 
 setup() {
@@ -121,7 +121,7 @@ setup() {
 	# Create the crontab file, and set it up
 	cat > /crontab.txt << EOF
 	$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log
-	EOF	
+EOF
 	/usr/bin/crontab /crontab.txt
 	
 	# Link the output from '/script.sh >> /var/log/script.log' to stdout, this allows docker to see the log
@@ -130,4 +130,4 @@ setup() {
 }
 setup
 log "Starting crond"
-/usr/sbin/crond -f -l $LOGGING_LEVEL
+/usr/sbin/crond -f -l "$LOGGING_LEVEL"
