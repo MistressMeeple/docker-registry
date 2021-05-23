@@ -8,16 +8,16 @@ println() {
 	# accept argument string or stdin
 	text="$*"; if [ "$#" -eq 0 ]; then text="$(cat)"; fi
 	
-	printf '[%5s][Entrypoint]: %s\n' "$type" "$text"
-}
+	printf '[%5s] [Entrypoint] %s\n' "$type" "$text"
+}>&2
 log() {
-	println log "$@" >&2
+	println " log " "$@"
 }
 warn() {
-	println warn "$@" >&2
+	println " warn" "$@"
 }
 error() {
-	println error "$@" >&2
+	println "error" "$@"
 }
 
 env_from_file(){
@@ -100,7 +100,7 @@ update_cached_ip() {
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
-    "$(echo $RESULT | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
+    echo "$(echo $RESULT | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
     log "Updated Cached IP: $(cat '$CACHED_IP_RECORD')">&2
 }
 
