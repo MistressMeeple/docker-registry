@@ -30,13 +30,13 @@ env_var_check() {
 	else
 		error "Environment variables are missing! Cannot start the container without these variables. " 
 		error "Ensure you have the following set correctly: "
-		if [ ! -z "$ZONE_ID" ]; then
+		if [ -z "$ZONE_ID" ]; then
 			error "	- ZONE_ID"
 		fi
-		if [ ! -z "$API_TOEN" ]; then
+		if [ -z "$API_TOEN" ]; then
 			error "	- API_TOKEN"
 		fi	
-		if [ ! -z  "$A_RECORD_ID" ] || [ ! -z "$A_RECORD_NAME" ]; then
+		if [ -z  "$A_RECORD_ID" ] || [ ! -z "$A_RECORD_NAME" ]; then
 			error "	- A_RECORD_ID or A_RECORD_NAME"
 		fi
 		exit 1;
