@@ -11,13 +11,13 @@ println() {
 	printf '[%5s][Entrypoint]: %s\n' "$type" "$text"
 }
 log() {
-	println Msg "$@" >&2
+	println log "$@" >&2
 }
 warn() {
-	println Warn "$@" >&2
+	println warn "$@" >&2
 }
 error() {
-	println ERROR "$@" >&2
+	println error "$@" >&2
 }
 
 env_from_file(){
@@ -25,25 +25,23 @@ env_from_file(){
 	#if unset
 	if [ "${1:-}" ]; then 
 		log "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
-		file_var=$(echo \$"${1}"_FILE)
+		file_var=$(echo \$${1}_FILE)
 		if [ "${file_var:-}" ]; then
 			log "[Env-Arg]   $file_var has been set" 
-			file_loc=$(eval echo "${file_var}")
+			file_loc=$(eval echo ${file_var})
 			if  [ -f "${file_loc}" ]; then 
 				log "[Env-Arg]   File exists, now putting the contents into $1"
-				export "${1}"="$(eval cat '$file_var')"
-				unset "$(echo "$file_var" | sed 's/\$//')"
+				export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
+				unset $(echo "$file_var" | sed 's/\$//')
 			else
 				error "[Env-Arg]   $file_loc does NOT exist"
 			fi
-			#if [ ! -z "${1}_FILE" ] && [ -f "${1}_FILE" ]; then local content=$(eval "cat $(echo $(echo \$${1}_FILE))")msg "File extists and is updating env-var"msg "'$content'"			else	msg "File not found"		fi
 		else
 			error "[Env-Arg]   '$file_var' has NOT been set."
 		fi
 	else
 		log "[Env-Arg]   $1 is already set, skipping"
 	fi
-	#export "$(echo ${1})"=$(eval "cat $(echo $(echo \$${1}_FILE))")
 }
 
 env_var_check() {
@@ -82,15 +80,15 @@ update_record_ID_env(){
 		-H "Authorization: Bearer $API_TOKEN"
     )
 	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
-	log "Updated A_RECORD_ID: $A_RECORD_NAME" >&2
+    log "Updated A_RECORD_ID: $A_RECORD_NAME" >&2
 }
 update_record_env() {
 
     # If ID is not set then pull by name
-    if [ -n "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
+    if [ ! -z "$A_RECORD_ID" ]  && [ -z "$A_RECORD_NAME" ]; then
         update_record_name_env
     #If Name is not set then pull by ID
-    elif [  -z "$A_RECORD_ID" ] && [ -n "$A_RECORD_NAME" ]; then
+    elif [  -z "$A_RECORD_ID" ] && [ ! -z "$A_RECORD_NAME" ]; then
         update_record_ID_env
     fi
 }
@@ -101,7 +99,7 @@ update_cached_ip() {
         -H "Authorization: Bearer $API_TOKEN"
     )
     log "$(echo "$RESULT" | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
-    log "Updated Cached IP: ""$(cat "$CACHED_IP_RECORD")">&2
+    log "Updated Cached IP: $(cat '$CACHED_IP_RECORD')">&2
 }
 
 setup() {
@@ -125,6 +123,5 @@ setup() {
 	log "Setup complete"
 }
 setup
-
 log "Starting crond"
 /usr/sbin/crond -f -l $LOGGING_LEVEL
