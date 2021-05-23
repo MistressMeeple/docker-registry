@@ -79,9 +79,10 @@ update_record_ID_env(){
 		-H "content-type: application/json" \
 		-H "Authorization: Bearer $API_TOKEN"
     )
-	A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
+    A_RECORD_ID=$(echo "$RESULT" | jq -r .result[0].id)
     log "Updated A_RECORD_ID: $A_RECORD_NAME" >&2
 }
+
 update_record_env() {
 
     # If ID is not set then pull by name
@@ -92,13 +93,14 @@ update_record_env() {
         update_record_ID_env
     fi
 }
+
 update_cached_ip() {
 
     RESULT=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$A_RECORD_ID" \
         -H "content-type: application/json" \
         -H "Authorization: Bearer $API_TOKEN"
     )
-    log "$(echo "$RESULT" | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
+    "$(echo $RESULT | jq -r .result[0].content)" | tee "$CACHED_IP_RECORD"
     log "Updated Cached IP: $(cat '$CACHED_IP_RECORD')">&2
 }
 
