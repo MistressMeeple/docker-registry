@@ -1,4 +1,4 @@
-#/usr/bin/env sh
+#!/bin/sh
 
 # Provide variables with docker environment for the following: 
 # $ZONE_ID
@@ -7,7 +7,7 @@
 # $A_RECORD_ID
 
 # Retrieve the last recorded public IP address
-RECORDED_IP=`cat $CACHED_IP_RECORD`
+RECORDED_IP=$(cat "$CACHED_IP_RECORD")
 
 # Fetch the current public IP address
 PUBLIC_IP=$(curl --silent https://api.ipify.org) || exit 1
@@ -21,7 +21,7 @@ echo "  previous:   '$RECORDED_IP'"
 echo "  current:    '$PUBLIC_IP'"
 # Otherwise, your Internet provider changed your public IP again.
 # Record the new public IP address locally
-echo $PUBLIC_IP > $CACHED_IP_RECORD
+echo "$PUBLIC_IP" > "$CACHED_IP_RECORD"
 
 # Record the new public IP address on Cloudflare using API v4
 RECORD=$(cat <<EOF
