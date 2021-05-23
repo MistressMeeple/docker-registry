@@ -54,7 +54,7 @@ env_var_check() {
 	msg "$API_TOKEN"
 	msg "$A_RECORD_ID"
 	msg "$A_RECORD_NAME"
-	if [ -z "$ZONE_ID" ] && [ -z "$API_TOKEN" ] &&  ( [ -z "$A_RECORD_ID" ] || [ -z "$A_RECORD_NAME" ] ); then
+	if [[ "$ZONE_ID" ] && [ "$API_TOKEN" ] &&  [ ("$A_RECORD_ID" || "$A_RECORD_NAME") ]]; then
 		msg "Environment variables seem to be setup correctly" 
 	else
 		error "Environment variables are missing! Cannot start the container without these variables. " 
