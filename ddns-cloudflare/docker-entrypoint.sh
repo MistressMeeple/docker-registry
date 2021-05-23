@@ -92,6 +92,6 @@ setup() {
 	ln -sf /dev/stdout /var/log/script.log 
 	msg "Setup complete"
 	# msg "Starting crond"
-	#/usr/sbin/crond -f # -l $LOGGING_LEVEL
+	/usr/sbin/crond -f # -l $LOGGING_LEVEL
 }
 setup
