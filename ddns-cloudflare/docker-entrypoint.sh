@@ -120,7 +120,7 @@ setup() {
 	update_cached_ip
 	# Create the crontab file, and set it up
 	cat > /crontab.txt << EOF
-	$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log
+$SCRIPT_SCHEDULE /script.sh  >> /var/log/script.log
 EOF
 	/usr/bin/crontab /crontab.txt
 	
