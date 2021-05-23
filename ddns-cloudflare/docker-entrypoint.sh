@@ -25,7 +25,7 @@ env_from_file(){
 	#if unset
 	if [ "${1:-}" ]; then 
 		log "[Env-Arg]   $1 is unset, attempting to pull from ${1}_FILE"; 
-		file_var=$("echo \$${1}_FILE")
+		file_var=$(echo \$"${1}"_FILE)
 		if [ "${file_var:-}" ]; then
 			log "[Env-Arg]   $file_var has been set" 
 			file_loc=$("eval echo ${file_var}")
